@@ -1,12 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import Login from '../src/pages/login';
+import Cadastro from '../src/pages/cadastro';
 import reportWebVitals from './reportWebVitals';
+import {FirebaseAppProvider} from 'reactfire'
+import firebaseConfig from './utils/firebaseConfig'
+
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+  <FirebaseAppProvider firebaseConfig={firebaseConfig}>
+    <Cadastro />
+  </FirebaseAppProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

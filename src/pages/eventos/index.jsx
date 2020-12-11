@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Form, Button, Card, Table } from 'react-bootstrap';
-import { db } from '../../utils/firebaseConfig'
+import { db, storage } from '../../utils/firebaseConfig'
+import FileUploader from "react-firebase-file-uploader";
 
 const CrudEventos = () => {
     const [ id, setId ] = useState(0);
     const [nome, setNome] = useState('');
     const [descricao, setDescricao] = useState('');
+    const [urlImagem , setUrlImagem] = useState('');
     const [eventos, setEventos] = useState([]);
 
     useEffect(() => {
@@ -22,7 +24,8 @@ const CrudEventos = () => {
                         return {
                             id : doc.id,
                             nome : doc.data().nome,
-                            descricao : doc.data().descricao
+                            descricao : doc.data().descricao,
+                            urlImagem : doc.data().urlImagem
                         }
                     })
                     setEventos(data);
@@ -36,13 +39,13 @@ const CrudEventos = () => {
             console.error(error)
         }
     }
-
     const salvar = (event) => {
         event.preventDefault();
 
         const evento = {
             nome : nome,
-            descricao : descricao
+            descricao : descricao,
+            urlImagem : urlImagem
         }
 
         if (id === 0){
@@ -91,6 +94,7 @@ const CrudEventos = () => {
                 setId(doc.id)
                 setNome(doc.data().nome)
                 setDescricao(doc.data().descricao)
+                setUrlImagem(doc.data().urlImagem)
             })
         } catch (error) {
             console.error(error)
@@ -101,6 +105,22 @@ const CrudEventos = () => {
         setId(0);
         setNome('');
         setDescricao('');
+        setUrlImagem('');
+    }
+
+    const handleUploadError = error => {
+        console.error(error);
+    }
+
+    const handleUploadSuccess = filename => {
+        console.log('Sucesso: ' + filename);
+
+        storage
+            .ref('imagens')
+            .child(filename)
+            .getDownloadURL()
+            .then(url => setUrlImagem(url))
+            .catch(error => console.error(error))
     }
 
     return (
@@ -111,6 +131,21 @@ const CrudEventos = () => {
                 <Card>
                         <Card.Body>
                         <Form onSubmit={event => salvar(event)}>
+                            <Form.Group>
+                                {urlImagem && <img src={urlImagem} style={{width : '200px'}} /> }
+                                <label style={{backgroundColor: 'steelblue', color: 'white', padding : 10, borderRadius : 4, cursor : 'pointer'}}>
+                                    Selecionar imagem   
+                                <FileUploader
+                                    hidden
+                                    accept="image/*"
+                                    name="urlImagem"
+                                    randomizeFilename
+                                    storageRef={storage.ref('imagens')}
+                                    onUploadError={handleUploadError}
+                                    onUploadSuccess={handleUploadSuccess}
+                                />
+                                </label>
+                            </Form.Group>
                             <Form.Group controlId="formNome">
                                 <Form.Label>Nome</Form.Label>
                                 <Form.Control type="text" value={nome} onChange={event => setNome(event.target.value)} />
@@ -130,6 +165,7 @@ const CrudEventos = () => {
                         <Table bordered>
                             <thead>
                                 <tr>
+                                    <th></th>
                                     <th>Nome</th>
                                     <th>Descrição</th>
                                     <th>Ações</th>
@@ -140,6 +176,7 @@ const CrudEventos = () => {
                                     eventos.map((item, index) => {
                                     return (
                                         <tr key={index}>
+                                            <td><img src={item.urlImagem} style={{width : '150px'}}/></td>
                                             <td>{item.nome}</td>
                                             <td>{item.descricao}</td>
                                             <td>

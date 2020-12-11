@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import Login from '../src/pages/login';
 import Cadastro from '../src/pages/cadastro';
+import CrudEventos from '../src/pages/eventos';
 import reportWebVitals from './reportWebVitals';
 import {FirebaseAppProvider} from 'reactfire'
 import firebaseConfig from './utils/firebaseConfig'
@@ -12,7 +13,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 ReactDOM.render(
   <React.StrictMode>
   <FirebaseAppProvider firebaseConfig={firebaseConfig}>
-    <Cadastro />
+    <CrudEventos />
   </FirebaseAppProvider>
   </React.StrictMode>,
   document.getElementById('root')
